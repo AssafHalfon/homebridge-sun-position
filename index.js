@@ -69,12 +69,14 @@ SunPositionAccessory.prototype.getServices = function() {
 		.setCharacteristic(Characteristic.Model, "Sun Position")
 
     this.service = new Service.LightSensor("Sun");
+	this.altitudeService = new Service.LightSensor("Sun Altitude");
+	this.azimuthService  = new Service.LightSensor("Sun Azimuth");
     this.service.addCharacteristic(AltitudeCharacteristic);
     this.service.addCharacteristic(AzimuthCharacteristic);
 
     this.updatePosition();
 
-    return [this.informationService, this.service];
+    return [this.informationService, this.service, this.altitudeService, this.azimuthService];
 }
 
 SunPositionAccessory.prototype.updatePosition = function() {
@@ -105,6 +107,13 @@ SunPositionAccessory.prototype.updatePosition = function() {
 	var position = suncalc.getPosition(now, this.location.lat, this.location.long);
 	var altitude = position.altitude * 180 / Math.PI;
 	var azimuth = (position.azimuth * 180 / Math.PI + 180) % 360;
+
+	// map angles to a valid lux range; keep semantics in the name/label
+	const altitudeLux = Math.max(0.0001, altitude + 90); // -90..+90 -> 0..180
+	const azimuthLux  = Math.max(0.0001, azimuth);       // 0..360
+
+	this.altitudeService.setCharacteristic(Characteristic.CurrentAmbientLightLevel, altitudeLux);
+	this.azimuthService.setCharacteristic(Characteristic.CurrentAmbientLightLevel,  azimuthLux);
 
 	this.log("Sun is " + altitude + " high at " + azimuth);
 
