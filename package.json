@@ -1,5 +1,6 @@
 {
   "name": "homebridge-sun-position-exposed",
+  "displayName": "Sun Position Exposed",
   "version": "0.1.0",
   "description": "Homebridge plugin to expose the position of the sun for automation",
   "license": "ISC",
